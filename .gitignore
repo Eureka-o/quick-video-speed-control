@@ -1,8 +1,8 @@
 /.codex/
 /.vscode/
 /output/
+/store-assets/
 /dist/
 /*.zip
 /MEMORY_INDEX.md
 /SKILL_ROUTER_MEMORY.md
-
