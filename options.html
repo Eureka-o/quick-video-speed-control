@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quick Video Speed Control 设置</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div class="title-block">
+          <img class="hero-icon" src="icons/icon-128.png" alt="">
+          <div>
+            <p class="eyebrow">Quick Video</p>
+            <h1>视频速度控制台</h1>
+          </div>
+        </div>
+        <label class="switch large" title="启用或停用插件">
+          <input id="enabled" type="checkbox" aria-label="启用插件">
+          <span></span>
+        </label>
+      </header>
+
+      <section class="workspace">
+        <aside class="preview">
+          <div class="video-frame">
+            <div class="glass-bar">
+              <span></span>
+              <strong>Quick Video</strong>
+            </div>
+            <div id="badgePreview" class="badge-preview">2.0x</div>
+            <div class="play-button"></div>
+            <div class="playbar">
+              <span></span>
+              <strong></strong>
+            </div>
+          </div>
+          <div class="feature-list">
+            <div><strong>长按快捷键</strong><span>临时倍速播放</span></div>
+            <div><strong>保存视频</strong><span>直链视频可下载</span></div>
+            <div><strong>提示浮层</strong><span>位置可调</span></div>
+          </div>
+        </aside>
+
+        <div class="settings">
+          <section class="group">
+            <div class="group-title">
+              <h2>速度曲线</h2>
+              <output id="holdRateValue">2.0x</output>
+            </div>
+            <input id="holdRate" type="range" min="1.1" max="5" step="0.1" aria-label="长按倍速">
+            <div class="preset-grid" id="presetRates"></div>
+          </section>
+
+          <section class="group split">
+            <div>
+              <div class="group-title">
+                <h2>按键行为</h2>
+              </div>
+              <div class="shortcut-grid">
+                <label class="key-capture">
+                  <span>倍速按住键</span>
+                  <button id="speedHoldKey" type="button" data-key-setting="speedHoldKey">Space</button>
+                </label>
+                <label class="key-capture">
+                  <span>后退键</span>
+                  <button id="seekBackwardKey" type="button" data-key-setting="seekBackwardKey">←</button>
+                </label>
+                <label class="key-capture">
+                  <span>快进键</span>
+                  <button id="seekForwardKey" type="button" data-key-setting="seekForwardKey">→</button>
+                </label>
+              </div>
+              <label class="control">
+                <span>触发延迟</span>
+                <output id="delayValue">180ms</output>
+                <input id="longPressDelayMs" type="range" min="0" max="500" step="20" aria-label="触发延迟">
+              </label>
+              <label class="control">
+                <span>快进/后退步长</span>
+                <output id="seekStepValue">5s</output>
+                <input id="seekStepSeconds" type="range" min="1" max="30" step="1" aria-label="快进后退秒数">
+              </label>
+              <label class="control inline">
+                <span>短按倍速键</span>
+                <select id="shortPressAction">
+                  <option value="pause">暂停视频</option>
+                  <option value="none">不处理</option>
+                </select>
+              </label>
+              <label class="toggle-line">
+                <input id="rememberPageRate" type="checkbox">
+                <span>松开后恢复网页原来的播放速度</span>
+              </label>
+              <label class="toggle-line">
+                <input id="enableSeekKeys" type="checkbox">
+                <span>启用快进/后退快捷键</span>
+              </label>
+            </div>
+
+            <div>
+              <div class="group-title">
+                <h2>保存视频</h2>
+              </div>
+              <label class="toggle-line">
+                <input id="askSaveLocation" type="checkbox">
+                <span>保存时询问下载位置</span>
+              </label>
+              <p class="note">直链 MP4/WebM 通常可以保存；DRM、blob 和分片流会显示受限提示。</p>
+            </div>
+          </section>
+
+          <section class="group">
+            <div class="group-title">
+              <h2>浮层提示</h2>
+            </div>
+            <label class="toggle-line">
+              <input id="showBadge" type="checkbox">
+              <span>长按时显示倍速提示</span>
+            </label>
+            <label class="control inline">
+              <span>提示位置</span>
+              <select id="badgePosition">
+                <option value="top-right">右上角</option>
+                <option value="top-left">左上角</option>
+                <option value="bottom-right">右下角</option>
+                <option value="bottom-left">左下角</option>
+              </select>
+            </label>
+          </section>
+
+          <footer class="actions">
+            <button id="save" type="button">保存设置</button>
+            <button id="reset" type="button" class="secondary">恢复默认</button>
+            <span id="status" role="status"></span>
+          </footer>
+        </div>
+      </section>
+    </main>
+    <script src="shared/settings.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

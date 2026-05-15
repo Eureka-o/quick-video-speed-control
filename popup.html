@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quick Video Speed Control</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="panel">
+      <header class="hero">
+        <img class="app-icon" src="icons/icon-48.png" alt="">
+        <div class="brand">
+          <p>Quick Video</p>
+          <h1>Speed Control</h1>
+        </div>
+        <label class="switch" title="启用或停用">
+          <input id="enabled" type="checkbox" aria-label="启用插件">
+          <span></span>
+        </label>
+      </header>
+
+      <section class="rate-panel">
+        <div class="rate-head">
+          <span>长按倍速</span>
+          <strong id="holdRateValue">2.0x</strong>
+        </div>
+        <input id="holdRate" type="range" min="1.1" max="5" step="0.1" aria-label="长按倍速">
+        <div class="presets" id="presetRates" aria-label="倍速预设"></div>
+      </section>
+
+      <section class="video-panel">
+        <div class="video-status">
+          <span id="videoState" class="state-pill">检测中</span>
+          <span id="videoMeta">当前标签页</span>
+        </div>
+        <div class="action-grid">
+          <button id="saveVideo" class="primary-action" type="button" disabled>
+            <svg class="download-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v10"></path>
+              <path d="m7 9 5 5 5-5"></path>
+              <path d="M5 15v3a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-3"></path>
+            </svg>
+            保存当前视频
+          </button>
+          <button id="copyVideoUrl" type="button" disabled>复制地址</button>
+        </div>
+        <p id="videoHint" class="status-text">正在检测页面视频。</p>
+      </section>
+
+      <section class="control-grid">
+        <label class="mini-field">
+          <span>触发延迟</span>
+          <output id="delayValue">180ms</output>
+          <input id="longPressDelayMs" type="range" min="0" max="500" step="20" aria-label="触发延迟">
+        </label>
+
+        <label class="mini-field">
+          <span>快进/后退步长</span>
+          <output id="seekStepValue">5s</output>
+          <input id="seekStepSeconds" type="range" min="1" max="30" step="1" aria-label="快进后退秒数">
+        </label>
+
+        <div class="key-summary">
+          <span>倍速键 <strong id="speedHoldKeyLabel">Space</strong></span>
+          <span>后退 <strong id="seekBackwardKeyLabel">←</strong></span>
+          <span>快进 <strong id="seekForwardKeyLabel">→</strong></span>
+        </div>
+
+        <label class="toggle-line">
+          <input id="enableSeekKeys" type="checkbox">
+          <span>启用快进/后退键</span>
+        </label>
+
+        <label class="toggle-line">
+          <input id="showBadge" type="checkbox">
+          <span>显示倍速浮层</span>
+        </label>
+
+        <label class="toggle-line">
+          <input id="askSaveLocation" type="checkbox">
+          <span>保存时询问位置</span>
+        </label>
+
+        <label class="select-line">
+          <span>短按倍速键</span>
+          <select id="shortPressAction">
+            <option value="pause">暂停视频</option>
+            <option value="none">不处理</option>
+          </select>
+        </label>
+      </section>
+
+      <footer>
+        <button id="openOptions" type="button">完整设置</button>
+        <button id="reset" type="button" class="ghost">恢复默认</button>
+      </footer>
+    </main>
+    <script src="shared/settings.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
