@@ -133,12 +133,13 @@
   }
 
   function getVideoInfo() {
+    const language = getSpaceHoldLanguage(settings.language);
     const video = findBestVideo();
     if (!video) {
       return {
         found: false,
         canSave: false,
-        reason: "当前页面没有检测到可播放的视频。"
+        reason: spaceHoldTranslate(language, "contentNoVideo")
       };
     }
 
@@ -153,8 +154,8 @@
       url: directUrl,
       visibleUrl: directUrl || blockedSource || "",
       reason: directUrl
-        ? "已检测到可直接保存的视频地址。"
-        : "检测到视频，但它可能是 blob、DRM 或分片流，浏览器扩展无法直接保存。",
+        ? spaceHoldTranslate(language, "contentDirectVideo")
+        : spaceHoldTranslate(language, "contentRestricted"),
       paused: video.paused,
       playbackRate: video.playbackRate || 1,
       duration,

@@ -1,3 +1,5 @@
+importScripts("shared/i18n.js");
+
 function sanitizeFilename(value) {
   return String(value || "video")
     .replace(/[\\/:*?"<>|]+/g, " ")
@@ -19,14 +21,18 @@ function getExtensionFromUrl(url) {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || message.type !== "SPACE_HOLD_DOWNLOAD_VIDEO") return false;
 
+  const language = getSpaceHoldLanguage(message.language);
   const url = message.url;
   if (!url || !/^https?:\/\//i.test(url)) {
-    sendResponse({ ok: false, error: "没有可直接下载的视频地址。" });
+    sendResponse({ ok: false, error: spaceHoldTranslate(language, "downloadNoUrl") });
     return false;
   }
 
   const extension = getExtensionFromUrl(url);
-  const filename = `Quick Video Speed Control/${sanitizeFilename(message.title)}.${extension}`;
+  const safeName = `${sanitizeFilename(message.title)}.${extension}`;
+  const filename = message.useDownloadSubfolder === false
+    ? safeName
+    : `Quick Video Speed Control/${safeName}`;
 
   chrome.downloads.download(
     {

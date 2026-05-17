@@ -1,4 +1,5 @@
 const SPACE_HOLD_DEFAULT_SETTINGS = {
+  language: "en",
   enabled: true,
   holdRate: 2.0,
   longPressDelayMs: 180,
@@ -11,6 +12,6 @@ const SPACE_HOLD_DEFAULT_SETTINGS = {
   seekBackwardKey: "ArrowLeft",
   seekForwardKey: "ArrowRight",
   seekStepSeconds: 5,
-  enableSeekKeys: true
+  enableSeekKeys: true,
+  useDownloadSubfolder: true
 };
-

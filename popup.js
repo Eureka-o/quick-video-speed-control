@@ -56,7 +56,20 @@ function formatKey(code) {
   if (map[code]) return map[code];
   if (code?.startsWith("Key")) return code.slice(3).toUpperCase();
   if (code?.startsWith("Digit")) return code.slice(5);
-  return code || "未设置";
+  return code || t("notSet");
+}
+
+function getLanguage() {
+  return getSpaceHoldLanguage(currentSettings.language);
+}
+
+function t(key, values) {
+  return spaceHoldTranslate(getLanguage(), key, values);
+}
+
+function applyText() {
+  applySpaceHoldI18n(getLanguage());
+  document.title = t("pageTitle");
 }
 
 function saveSettings(values) {
@@ -92,6 +105,7 @@ function updatePresetState(value) {
 
 function render(settings) {
   currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+  applyText();
   enabled.checked = Boolean(currentSettings.enabled);
   holdRate.value = currentSettings.holdRate;
   holdRateValue.textContent = formatRate(currentSettings.holdRate);
@@ -114,28 +128,30 @@ function setVideoUi(info) {
   videoState.classList.remove("ready", "warn");
 
   if (!info || !info.found) {
-    videoState.textContent = "未检测到";
+    videoState.textContent = t("notDetected");
     videoState.classList.add("warn");
-    videoMeta.textContent = "当前标签页";
-    videoHint.textContent = info?.reason || "当前页面暂时没有可保存的视频。";
+    videoMeta.textContent = t("currentTab");
+    videoHint.textContent = info?.reason || t("noSaveVideo");
     saveVideo.disabled = true;
     copyVideoUrl.disabled = true;
     return;
   }
 
   const duration = formatDuration(info.duration);
-  videoMeta.textContent = duration ? `时长 ${duration}` : `当前 ${formatRate(info.playbackRate || 1)}`;
+  videoMeta.textContent = duration
+    ? t("duration", { duration })
+    : t("currentRate", { rate: formatRate(info.playbackRate || 1) });
   copyVideoUrl.disabled = !info.visibleUrl;
 
   if (info.canSave) {
-    videoState.textContent = "可保存";
+    videoState.textContent = t("readyToSave");
     videoState.classList.add("ready");
-    videoHint.textContent = "检测到直链视频，可以保存到本机。";
+    videoHint.textContent = t("directVideoHint");
     saveVideo.disabled = false;
     return;
   }
 
-  videoState.textContent = "受限流";
+  videoState.textContent = t("restrictedStream");
   videoState.classList.add("warn");
   videoHint.textContent = info.reason;
   saveVideo.disabled = true;
@@ -148,15 +164,15 @@ function getActiveTab(callback) {
 }
 
 function refreshVideoInfo() {
-  setVideoUi({ found: false, reason: "正在检测页面视频。" });
+  setVideoUi({ found: false, reason: t("checkingVideo") });
   getActiveTab((tab) => {
     if (!tab || !tab.id) {
-      setVideoUi({ found: false, reason: "没有可用的当前标签页。" });
+      setVideoUi({ found: false, reason: t("noAvailableTab") });
       return;
     }
     chrome.tabs.sendMessage(tab.id, { type: "SPACE_HOLD_VIDEO_INFO" }, (response) => {
       if (chrome.runtime.lastError || !response) {
-        setVideoUi({ found: false, reason: "当前页面不支持扩展脚本，或需要刷新页面后再试。" });
+        setVideoUi({ found: false, reason: t("unsupportedPage") });
         return;
       }
       setVideoUi(response);
@@ -240,14 +256,16 @@ saveVideo.addEventListener("click", () => {
       type: "SPACE_HOLD_DOWNLOAD_VIDEO",
       url: currentVideoInfo.url,
       title: currentVideoInfo.pageTitle,
-      saveAs: currentSettings.askSaveLocation
+      saveAs: currentSettings.askSaveLocation,
+      language: getLanguage(),
+      useDownloadSubfolder: currentSettings.useDownloadSubfolder
     },
     (response) => {
       if (chrome.runtime.lastError || !response?.ok) {
-        videoHint.textContent = response?.error || "保存失败，当前网站可能限制了下载。";
+        videoHint.textContent = response?.error || t("saveFailed");
         return;
       }
-      videoHint.textContent = "已提交到浏览器下载列表。";
+      videoHint.textContent = t("saveSubmitted");
     }
   );
 });
@@ -256,7 +274,7 @@ copyVideoUrl.addEventListener("click", async () => {
   const url = currentVideoInfo?.url || currentVideoInfo?.visibleUrl;
   if (!url) return;
   await navigator.clipboard.writeText(url);
-  videoHint.textContent = "视频地址已复制。";
+  videoHint.textContent = t("urlCopied");
 });
 
 openOptions.addEventListener("click", () => {

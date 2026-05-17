@@ -3,6 +3,7 @@ const DEFAULT_SETTINGS = SPACE_HOLD_DEFAULT_SETTINGS;
 const PRESET_RATES = [1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
 
 const controls = {
+  language: document.querySelector("#language"),
   enabled: document.querySelector("#enabled"),
   holdRate: document.querySelector("#holdRate"),
   holdRateValue: document.querySelector("#holdRateValue"),
@@ -19,6 +20,7 @@ const controls = {
   shortPressAction: document.querySelector("#shortPressAction"),
   rememberPageRate: document.querySelector("#rememberPageRate"),
   askSaveLocation: document.querySelector("#askSaveLocation"),
+  useDownloadSubfolder: document.querySelector("#useDownloadSubfolder"),
   presetRates: document.querySelector("#presetRates"),
   badgePreview: document.querySelector("#badgePreview"),
   save: document.querySelector("#save"),
@@ -51,7 +53,20 @@ function formatKey(code) {
   if (map[code]) return map[code];
   if (code?.startsWith("Key")) return code.slice(3).toUpperCase();
   if (code?.startsWith("Digit")) return code.slice(5);
-  return code || "未设置";
+  return code || t("notSet");
+}
+
+function getLanguage() {
+  return getSpaceHoldLanguage(currentSettings.language);
+}
+
+function t(key, values) {
+  return spaceHoldTranslate(getLanguage(), key, values);
+}
+
+function applyText() {
+  applySpaceHoldI18n(getLanguage());
+  document.title = t("pageTitleOptions");
 }
 
 function setStatus(text) {
@@ -84,6 +99,7 @@ function updatePreview() {
 
 function collectSettings() {
   return {
+    language: controls.language.value,
     enabled: controls.enabled.checked,
     holdRate: Number(controls.holdRate.value),
     longPressDelayMs: Number(controls.longPressDelayMs.value),
@@ -96,12 +112,15 @@ function collectSettings() {
     badgePosition: controls.badgePosition.value,
     shortPressAction: controls.shortPressAction.value,
     rememberPageRate: controls.rememberPageRate.checked,
-    askSaveLocation: controls.askSaveLocation.checked
+    askSaveLocation: controls.askSaveLocation.checked,
+    useDownloadSubfolder: controls.useDownloadSubfolder.checked
   };
 }
 
 function render(settings) {
   currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+  applyText();
+  controls.language.value = getLanguage();
   controls.enabled.checked = Boolean(currentSettings.enabled);
   controls.holdRate.value = currentSettings.holdRate;
   controls.holdRateValue.textContent = formatRate(currentSettings.holdRate);
@@ -118,6 +137,7 @@ function render(settings) {
   controls.shortPressAction.value = currentSettings.shortPressAction;
   controls.rememberPageRate.checked = Boolean(currentSettings.rememberPageRate);
   controls.askSaveLocation.checked = Boolean(currentSettings.askSaveLocation);
+  controls.useDownloadSubfolder.checked = Boolean(currentSettings.useDownloadSubfolder);
   updatePresetState(currentSettings.holdRate);
   updatePreview();
 }
@@ -155,7 +175,7 @@ function buildPresets() {
     button.textContent = formatRate(rate);
     button.addEventListener("click", () => {
       controls.holdRate.value = rate;
-      saveFromControls("倍速已更新");
+      saveFromControls(t("statusRateUpdated"));
     });
     controls.presetRates.appendChild(button);
   });
@@ -176,6 +196,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 [
   controls.enabled,
+  controls.language,
   controls.holdRate,
   controls.longPressDelayMs,
   controls.seekStepSeconds,
@@ -184,7 +205,8 @@ chrome.storage.onChanged.addListener((changes, area) => {
   controls.shortPressAction,
   controls.rememberPageRate,
   controls.enableSeekKeys,
-  controls.askSaveLocation
+  controls.askSaveLocation,
+  controls.useDownloadSubfolder
 ].forEach((control) => {
   control.addEventListener("input", () => {
     const settings = collectSettings();
@@ -199,7 +221,7 @@ document.querySelectorAll("[data-key-setting]").forEach((button) => {
     document.querySelectorAll("[data-key-setting]").forEach((item) => {
       item.classList.toggle("recording", item === button);
     });
-    button.textContent = "按一个键";
+    button.textContent = t("pressAKey");
   });
 });
 
@@ -213,13 +235,13 @@ window.addEventListener("keydown", (event) => {
   document.querySelectorAll("[data-key-setting]").forEach((item) => {
     item.classList.remove("recording");
   });
-  save(next, "快捷键已更新");
+  save(next, t("statusShortcutUpdated"));
 }, true);
 
 controls.save.addEventListener("click", () => {
-  saveFromControls("设置已保存");
+  saveFromControls(t("statusSaved"));
 });
 
 controls.reset.addEventListener("click", () => {
-  save(DEFAULT_SETTINGS, "已恢复默认");
+  save(DEFAULT_SETTINGS, t("statusReset"));
 });
