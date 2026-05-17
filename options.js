@@ -3,7 +3,6 @@ const DEFAULT_SETTINGS = SPACE_HOLD_DEFAULT_SETTINGS;
 const PRESET_RATES = [1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
 
 const controls = {
-  language: document.querySelector("#language"),
   enabled: document.querySelector("#enabled"),
   holdRate: document.querySelector("#holdRate"),
   holdRateValue: document.querySelector("#holdRateValue"),
@@ -98,7 +97,7 @@ function updatePreview() {
 
 function collectSettings() {
   return {
-    language: controls.language.value,
+    language: currentSettings.language,
     enabled: controls.enabled.checked,
     holdRate: Number(controls.holdRate.value),
     longPressDelayMs: Number(controls.longPressDelayMs.value),
@@ -118,7 +117,6 @@ function collectSettings() {
 function render(settings) {
   currentSettings = normalizeSpaceHoldSettings(settings);
   applyText();
-  controls.language.value = getLanguage();
   controls.enabled.checked = Boolean(currentSettings.enabled);
   controls.holdRate.value = currentSettings.holdRate;
   controls.holdRateValue.textContent = formatRate(currentSettings.holdRate);
@@ -193,7 +191,6 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 [
   controls.enabled,
-  controls.language,
   controls.holdRate,
   controls.longPressDelayMs,
   controls.seekStepSeconds,

@@ -2,6 +2,7 @@ const DEFAULT_SETTINGS = SPACE_HOLD_DEFAULT_SETTINGS;
 
 const PRESET_RATES = [1.5, 2.0, 2.5, 3.0];
 
+const language = document.querySelector("#language");
 const enabled = document.querySelector("#enabled");
 const holdRate = document.querySelector("#holdRate");
 const holdRateValue = document.querySelector("#holdRateValue");
@@ -110,6 +111,7 @@ function updatePresetState(value) {
 function render(settings) {
   currentSettings = normalizeSpaceHoldSettings(settings);
   applyText();
+  language.value = getLanguage();
   enabled.checked = Boolean(currentSettings.enabled);
   holdRate.value = currentSettings.holdRate;
   holdRateValue.textContent = formatRate(currentSettings.holdRate);
@@ -213,6 +215,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
   });
 });
 
+language.addEventListener("change", () => {
+  currentSettings = normalizeSpaceHoldSettings({ ...currentSettings, language: language.value });
+  render(currentSettings);
+  saveSetting("language", language.value);
+  refreshVideoInfo();
+});
+
 enabled.addEventListener("change", () => {
   saveSetting("enabled", enabled.checked);
 });
@@ -258,8 +267,7 @@ saveVideo.addEventListener("click", () => {
       url: currentVideoInfo.url,
       title: currentVideoInfo.pageTitle,
       saveAs: downloadOptions.saveAs,
-      language: getLanguage(),
-      useDownloadSubfolder: downloadOptions.useDownloadSubfolder
+      language: getLanguage()
     },
     (response) => {
       if (chrome.runtime.lastError || !response?.ok) {

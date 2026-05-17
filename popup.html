@@ -11,8 +11,14 @@
       <header class="hero">
         <img class="app-icon" src="icons/icon-48.png" alt="">
         <div class="brand">
-          <p data-i18n="brand">Quick Video</p>
-          <h1 data-i18n="popupTitle">Speed Control</h1>
+          <h1 data-i18n="popupTitle">Quick Video Speed Control</h1>
+          <label class="popup-language">
+            <span data-i18n="languageBilingual">Language / 语言</span>
+            <select id="language" aria-label="Language / 语言">
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+            </select>
+          </label>
         </div>
         <label class="switch" title="Enable or disable extension" data-i18n-title="appEnabledTitle">
           <input id="enabled" type="checkbox" aria-label="Enable extension" data-i18n-aria-label="appEnabledAria">

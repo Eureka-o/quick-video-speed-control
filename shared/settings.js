@@ -21,8 +21,6 @@ function normalizeSpaceHoldSettings(values = {}) {
   if (!values.downloadLocationMode) {
     if (values.askSaveLocation === true) {
       settings.downloadLocationMode = "ask";
-    } else if (values.useDownloadSubfolder === true) {
-      settings.downloadLocationMode = "subfolder";
     } else if (values.askSaveLocation === false || values.useDownloadSubfolder === false) {
       settings.downloadLocationMode = "downloads";
     } else {
@@ -30,7 +28,11 @@ function normalizeSpaceHoldSettings(values = {}) {
     }
   }
 
-  if (!["ask", "downloads", "subfolder"].includes(settings.downloadLocationMode)) {
+  if (settings.downloadLocationMode === "subfolder") {
+    settings.downloadLocationMode = "downloads";
+  }
+
+  if (!["ask", "downloads"].includes(settings.downloadLocationMode)) {
     settings.downloadLocationMode = SPACE_HOLD_DEFAULT_SETTINGS.downloadLocationMode;
   }
 
@@ -43,7 +45,6 @@ function normalizeSpaceHoldSettings(values = {}) {
 function getSpaceHoldDownloadOptions(settings) {
   const normalized = normalizeSpaceHoldSettings(settings);
   return {
-    saveAs: normalized.downloadLocationMode === "ask",
-    useDownloadSubfolder: normalized.downloadLocationMode === "subfolder"
+    saveAs: normalized.downloadLocationMode === "ask"
   };
 }
