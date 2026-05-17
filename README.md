@@ -16,6 +16,8 @@ Quick Video Speed Control works locally in the browser. It focuses on playback c
 - Popup controls for quick adjustments.
 - Full options page for detailed configuration.
 - Direct-video saving for browser-accessible MP4, WebM, Ogg, and similar media URLs.
+- Download location modes for asking each time, using the browser Downloads folder, or using a dedicated extension subfolder.
+- Popup download progress feedback for submitted direct-video downloads.
 - Clear handling for restricted streams such as DRM, blob URLs, login-protected media, and segmented formats.
 - Local preference storage through the browser extension storage API.
 
@@ -45,6 +47,8 @@ Quick Video Speed Control 是一款轻量级 Microsoft Edge / Chromium 浏览器
 - 提供弹窗面板用于快速调整。
 - 提供完整设置页用于细节配置。
 - 支持保存浏览器可直接访问的 MP4、WebM、Ogg 等视频直链。
+- 支持下载位置模式：每次选择、浏览器默认下载目录，或扩展专用子文件夹。
+- 弹窗会显示已提交直链视频下载的进度反馈。
 - 对 DRM、blob URL、登录受限媒体、分片流等受限资源给出清晰提示。
 - 使用浏览器扩展存储 API 在本地保存用户偏好设置。
 

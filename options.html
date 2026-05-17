@@ -116,13 +116,13 @@
               <div class="group-title">
                 <h2 data-i18n="saveVideoGroup">Save video</h2>
               </div>
-              <label class="toggle-line">
-                <input id="askSaveLocation" type="checkbox">
-                <span data-i18n="askSaveLocation">Ask where to save</span>
-              </label>
-              <label class="toggle-line">
-                <input id="useDownloadSubfolder" type="checkbox">
-                <span data-i18n="useDownloadSubfolder">Save to Quick Video Speed Control folder by default</span>
+              <label class="control inline">
+                <span data-i18n="downloadLocation">Download location</span>
+                <select id="downloadLocationMode">
+                  <option value="ask" data-i18n="downloadAsk">Ask every time</option>
+                  <option value="downloads" data-i18n="downloadDownloads">Browser Downloads folder</option>
+                  <option value="subfolder" data-i18n="downloadSubfolder">Quick Video Speed Control folder</option>
+                </select>
               </label>
               <p class="note" data-i18n="saveNote">Direct MP4/WebM videos can usually be saved. DRM, blob, and segmented streams will show a restricted-stream message.</p>
             </div>

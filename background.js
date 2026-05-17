@@ -30,9 +30,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   const extension = getExtensionFromUrl(url);
   const safeName = `${sanitizeFilename(message.title)}.${extension}`;
-  const filename = message.useDownloadSubfolder === false
-    ? safeName
-    : `Quick Video Speed Control/${safeName}`;
+  const filename = message.useDownloadSubfolder === true
+    ? `Quick Video Speed Control/${safeName}`
+    : safeName;
 
   chrome.downloads.download(
     {

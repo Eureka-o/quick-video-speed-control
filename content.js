@@ -12,8 +12,8 @@
   let seekBadgeTimer = null;
 
   function loadSettings() {
-    chrome.storage.sync.get(DEFAULT_SETTINGS, (stored) => {
-      settings = { ...DEFAULT_SETTINGS, ...stored };
+    chrome.storage.sync.get(null, (stored) => {
+      settings = normalizeSpaceHoldSettings(stored);
     });
   }
 
@@ -323,6 +323,7 @@
     for (const [key, change] of Object.entries(changes)) {
       settings[key] = change.newValue;
     }
+    settings = normalizeSpaceHoldSettings(settings);
     if (!settings.enabled) {
       stopSpeedHold();
       return;

@@ -19,8 +19,7 @@ const controls = {
   badgePosition: document.querySelector("#badgePosition"),
   shortPressAction: document.querySelector("#shortPressAction"),
   rememberPageRate: document.querySelector("#rememberPageRate"),
-  askSaveLocation: document.querySelector("#askSaveLocation"),
-  useDownloadSubfolder: document.querySelector("#useDownloadSubfolder"),
+  downloadLocationMode: document.querySelector("#downloadLocationMode"),
   presetRates: document.querySelector("#presetRates"),
   badgePreview: document.querySelector("#badgePreview"),
   save: document.querySelector("#save"),
@@ -112,13 +111,12 @@ function collectSettings() {
     badgePosition: controls.badgePosition.value,
     shortPressAction: controls.shortPressAction.value,
     rememberPageRate: controls.rememberPageRate.checked,
-    askSaveLocation: controls.askSaveLocation.checked,
-    useDownloadSubfolder: controls.useDownloadSubfolder.checked
+    downloadLocationMode: controls.downloadLocationMode.value
   };
 }
 
 function render(settings) {
-  currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+  currentSettings = normalizeSpaceHoldSettings(settings);
   applyText();
   controls.language.value = getLanguage();
   controls.enabled.checked = Boolean(currentSettings.enabled);
@@ -136,14 +134,13 @@ function render(settings) {
   controls.badgePosition.value = currentSettings.badgePosition;
   controls.shortPressAction.value = currentSettings.shortPressAction;
   controls.rememberPageRate.checked = Boolean(currentSettings.rememberPageRate);
-  controls.askSaveLocation.checked = Boolean(currentSettings.askSaveLocation);
-  controls.useDownloadSubfolder.checked = Boolean(currentSettings.useDownloadSubfolder);
+  controls.downloadLocationMode.value = currentSettings.downloadLocationMode;
   updatePresetState(currentSettings.holdRate);
   updatePreview();
 }
 
 function save(settings, message = "已保存") {
-  currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+  currentSettings = normalizeSpaceHoldSettings(settings);
   window.clearTimeout(pendingSettingsTimer);
   pendingSettings = null;
   chrome.storage.sync.set(currentSettings, () => {
@@ -157,7 +154,7 @@ function saveFromControls(message) {
 }
 
 function saveSoon(settings) {
-  pendingSettings = { ...DEFAULT_SETTINGS, ...settings };
+  pendingSettings = normalizeSpaceHoldSettings(settings);
   window.clearTimeout(pendingSettingsTimer);
   pendingSettingsTimer = window.setTimeout(() => {
     const next = pendingSettings;
@@ -183,13 +180,13 @@ function buildPresets() {
 
 buildPresets();
 
-chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {
+chrome.storage.sync.get(null, (settings) => {
   render(settings);
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "sync") return;
-  chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {
+  chrome.storage.sync.get(null, (settings) => {
     render(settings);
   });
 });
@@ -205,8 +202,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   controls.shortPressAction,
   controls.rememberPageRate,
   controls.enableSeekKeys,
-  controls.askSaveLocation,
-  controls.useDownloadSubfolder
+  controls.downloadLocationMode
 ].forEach((control) => {
   control.addEventListener("input", () => {
     const settings = collectSettings();

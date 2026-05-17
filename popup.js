@@ -14,7 +14,6 @@ const seekBackwardKeyLabel = document.querySelector("#seekBackwardKeyLabel");
 const seekForwardKeyLabel = document.querySelector("#seekForwardKeyLabel");
 const enableSeekKeys = document.querySelector("#enableSeekKeys");
 const showBadge = document.querySelector("#showBadge");
-const askSaveLocation = document.querySelector("#askSaveLocation");
 const shortPressAction = document.querySelector("#shortPressAction");
 const presetRates = document.querySelector("#presetRates");
 const videoState = document.querySelector("#videoState");
@@ -22,6 +21,10 @@ const videoMeta = document.querySelector("#videoMeta");
 const videoHint = document.querySelector("#videoHint");
 const saveVideo = document.querySelector("#saveVideo");
 const copyVideoUrl = document.querySelector("#copyVideoUrl");
+const downloadProgressPanel = document.querySelector("#downloadProgressPanel");
+const downloadProgressLabel = document.querySelector("#downloadProgressLabel");
+const downloadProgressValue = document.querySelector("#downloadProgressValue");
+const downloadProgress = document.querySelector("#downloadProgress");
 const openOptions = document.querySelector("#openOptions");
 const reset = document.querySelector("#reset");
 
@@ -29,6 +32,7 @@ let currentSettings = { ...DEFAULT_SETTINGS };
 let currentVideoInfo = null;
 let pendingSettings = {};
 let pendingSettingsTimer = null;
+let trackedDownloadId = null;
 
 function formatRate(value) {
   return `${Number(value).toFixed(1)}x`;
@@ -104,7 +108,7 @@ function updatePresetState(value) {
 }
 
 function render(settings) {
-  currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+  currentSettings = normalizeSpaceHoldSettings(settings);
   applyText();
   enabled.checked = Boolean(currentSettings.enabled);
   holdRate.value = currentSettings.holdRate;
@@ -118,7 +122,6 @@ function render(settings) {
   seekForwardKeyLabel.textContent = formatKey(currentSettings.seekForwardKey);
   enableSeekKeys.checked = Boolean(currentSettings.enableSeekKeys);
   showBadge.checked = Boolean(currentSettings.showBadge);
-  askSaveLocation.checked = Boolean(currentSettings.askSaveLocation);
   shortPressAction.value = currentSettings.shortPressAction;
   updatePresetState(currentSettings.holdRate);
 }
@@ -199,14 +202,14 @@ function buildPresets() {
 
 buildPresets();
 
-chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {
-  render({ ...DEFAULT_SETTINGS, ...settings });
+chrome.storage.sync.get(null, (settings) => {
+  render(settings);
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "sync") return;
-  chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {
-    render({ ...DEFAULT_SETTINGS, ...settings });
+  chrome.storage.sync.get(null, (settings) => {
+    render(settings);
   });
 });
 
@@ -241,34 +244,91 @@ showBadge.addEventListener("change", () => {
   saveSetting("showBadge", showBadge.checked);
 });
 
-askSaveLocation.addEventListener("change", () => {
-  saveSetting("askSaveLocation", askSaveLocation.checked);
-});
-
 shortPressAction.addEventListener("change", () => {
   saveSetting("shortPressAction", shortPressAction.value);
 });
 
 saveVideo.addEventListener("click", () => {
   if (!currentVideoInfo?.canSave) return;
+  const downloadOptions = getSpaceHoldDownloadOptions(currentSettings);
+  showDownloadProgress(t("downloadPreparing"), 0);
   chrome.runtime.sendMessage(
     {
       type: "SPACE_HOLD_DOWNLOAD_VIDEO",
       url: currentVideoInfo.url,
       title: currentVideoInfo.pageTitle,
-      saveAs: currentSettings.askSaveLocation,
+      saveAs: downloadOptions.saveAs,
       language: getLanguage(),
-      useDownloadSubfolder: currentSettings.useDownloadSubfolder
+      useDownloadSubfolder: downloadOptions.useDownloadSubfolder
     },
     (response) => {
       if (chrome.runtime.lastError || !response?.ok) {
+        trackedDownloadId = null;
+        hideDownloadProgress();
         videoHint.textContent = response?.error || t("saveFailed");
         return;
       }
+      trackedDownloadId = response.downloadId;
       videoHint.textContent = t("saveSubmitted");
     }
   );
 });
+
+function showDownloadProgress(label, percent) {
+  downloadProgressPanel.hidden = false;
+  downloadProgressLabel.textContent = label;
+  if (Number.isFinite(percent)) {
+    downloadProgress.removeAttribute("data-indeterminate");
+    downloadProgress.value = Math.max(0, Math.min(100, percent));
+    downloadProgressValue.textContent = `${Math.round(downloadProgress.value)}%`;
+  } else {
+    downloadProgress.removeAttribute("value");
+    downloadProgressValue.textContent = "";
+  }
+}
+
+function hideDownloadProgress() {
+  downloadProgressPanel.hidden = true;
+  downloadProgress.value = 0;
+  downloadProgressValue.textContent = "0%";
+}
+
+function updateDownloadProgress(downloadItem) {
+  if (!downloadItem || downloadItem.id !== trackedDownloadId) return;
+
+  if (downloadItem.state === "complete") {
+    showDownloadProgress(t("downloadComplete"), 100);
+    videoHint.textContent = t("downloadComplete");
+    trackedDownloadId = null;
+    return;
+  }
+
+  if (downloadItem.state === "interrupted") {
+    showDownloadProgress(t("downloadInterrupted"), 0);
+    videoHint.textContent = t("downloadInterrupted");
+    trackedDownloadId = null;
+    return;
+  }
+
+  const totalBytes = Number(downloadItem.totalBytes);
+  const bytesReceived = Number(downloadItem.bytesReceived);
+  if (Number.isFinite(totalBytes) && totalBytes > 0 && Number.isFinite(bytesReceived)) {
+    const percent = Math.min(99, Math.round((bytesReceived / totalBytes) * 100));
+    showDownloadProgress(t("downloadProgress", { percent }), percent);
+    return;
+  }
+
+  showDownloadProgress(t("downloadProgressUnknown"), NaN);
+}
+
+if (chrome.downloads?.onChanged) {
+  chrome.downloads.onChanged.addListener((delta) => {
+    if (!trackedDownloadId || delta.id !== trackedDownloadId) return;
+    chrome.downloads.search({ id: trackedDownloadId }, ([downloadItem]) => {
+      updateDownloadProgress(downloadItem);
+    });
+  });
+}
 
 copyVideoUrl.addEventListener("click", async () => {
   const url = currentVideoInfo?.url || currentVideoInfo?.visibleUrl;

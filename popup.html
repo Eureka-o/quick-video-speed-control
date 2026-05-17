@@ -77,11 +77,6 @@
           <span data-i18n="showBadge">Show speed badge</span>
         </label>
 
-        <label class="toggle-line">
-          <input id="askSaveLocation" type="checkbox">
-          <span data-i18n="askSaveLocation">Ask where to save</span>
-        </label>
-
         <label class="select-line">
           <span data-i18n="shortPressAction">Short press speed key</span>
           <select id="shortPressAction">
@@ -89,6 +84,14 @@
             <option value="none" data-i18n="doNothing">Do nothing</option>
           </select>
         </label>
+      </section>
+
+      <section id="downloadProgressPanel" class="download-progress-panel" hidden>
+        <div class="download-progress-head">
+          <span id="downloadProgressLabel">Preparing download</span>
+          <strong id="downloadProgressValue">0%</strong>
+        </div>
+        <progress id="downloadProgress" value="0" max="100"></progress>
       </section>
 
       <footer>

@@ -97,7 +97,8 @@ h1 {
 
 .rate-panel,
 .video-panel,
-.control-grid {
+.control-grid,
+.download-progress-panel {
   margin-top: 12px;
   border: 1px solid #d7e0eb;
   border-radius: 8px;
@@ -245,6 +246,33 @@ button:disabled {
   color: #64748b;
   font-size: 12px;
   line-height: 1.45;
+}
+
+.download-progress-panel {
+  padding: 12px;
+}
+
+.download-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #2d394d;
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.download-progress-head strong {
+  color: #2368db;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+#downloadProgress {
+  width: 100%;
+  height: 9px;
+  margin-top: 10px;
+  accent-color: #2368db;
 }
 
 .control-grid {
